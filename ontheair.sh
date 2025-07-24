@@ -34,16 +34,32 @@ fi
 windows=$($yabai -m query --windows) # produces a JSON of open macOS windows (including full screen Spaces)
 
 # Detect Zoom meeting
-zoom_active=$(echo "$windows" | jq -e '.[] | select(.app == "zoom.us") | select(.title | test("Meeting"))' > /dev/null && echo "true" || echo "false")
+zoom_active=$(echo "$windows" | jq -e '
+  .[] | select(.app == "zoom.us") |
+  select(.title | test("Meeting"))
+' > /dev/null && echo "true" || echo "false")
 
 # Detect FaceTime call
-facetime_active=$(echo "$windows" | jq -e '.[] | select(.app == "FaceTime") | select(.title | test("FaceTime|with"))' > /dev/null && echo "true" || echo "false")
+facetime_active=$(echo "$windows" | jq -e '
+  .[] | select(.app == "FaceTime") |
+  select(.title | test("FaceTime|with"))
+' > /dev/null && echo "true" || echo "false")
 
-# Detect Microsoft Teams call
-teams_active=$(echo "$windows" | jq -e '.[] | select(.app | test("Teams")) | select(.title | test("Call|Meeting|with"))' > /dev/null && echo "true" || echo "false")
+# Detect Microsoft Teams call (ends in "| Microsoft Teams", but doesn't start with one of the sidebar tabs)
+# This is to avoid false positives from sidebar tabs like Calendar, Chat, Copilot, etc
+teams_active=$(echo "$windows" | jq -e '
+  .[] |
+  select(.app == "Microsoft Teams") |
+  select(.title != null and (.title | type) == "string") |
+  select(.title | test("Microsoft Teams$")) |
+  select(.title | test("^(Calendar|Chat|Copilot|Whiteboard|OneNote|Visio) \\| Microsoft Teams") | not)
+' > /dev/null && echo "true" || echo "false")
 
 # Slack Huddles (🎤 emoji in title == active huddle)
-slack_active=$(echo "$windows" | jq -e '.[] | select(.app == "Slack") | select(.title | test("🎤"))' > /dev/null && echo "true" || echo "false")
+slack_active=$(echo "$windows" | jq -e '
+  .[] | select(.app == "Slack") |
+  select(.title | test("🎤"))
+' > /dev/null && echo "true" || echo "false")
 
 
 # Final call state is "in" if any are active
