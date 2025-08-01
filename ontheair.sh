@@ -52,7 +52,7 @@ teams_active=$(echo "$windows" | jq -e '
   select(.app == "Microsoft Teams") |
   select(.title != null and (.title | type) == "string") |
   select(.title | test("Microsoft Teams$")) |
-  select(.title | test("^(Calendar|Chat|Copilot|Whiteboard|OneNote|Visio) \\| Microsoft Teams") | not)
+  select(.title | test("^(Calendar|Chat|Copilot|Whiteboard|OneNote|Visio) \\|") | not)
 ' > /dev/null && echo "true" || echo "false")
 
 # Slack Huddles (🎤 emoji in title == active huddle)
