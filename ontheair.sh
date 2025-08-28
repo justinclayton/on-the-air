@@ -36,7 +36,7 @@ windows=$($yabai -m query --windows) # produces a JSON of open macOS windows (in
 # Detect Zoom meeting
 zoom_active=$(echo "$windows" | jq -e '
   .[] | select(.app == "zoom.us") |
-  select(.title | test("Meeting"))
+  select(.title | test("Meeting|share|floating"))
 ' > /dev/null && echo "true" || echo "false")
 
 # Detect FaceTime call
@@ -52,7 +52,7 @@ teams_active=$(echo "$windows" | jq -e '
   select(.app == "Microsoft Teams") |
   select(.title != null and (.title | type) == "string") |
   select(.title | test("Microsoft Teams$")) |
-  select(.title | test("^(Calendar|Chat|Copilot|Whiteboard|OneNote|Visio) \\|") | not)
+  select(.title | test("^(Calendar|Chat|Copilot|Whiteboard|Activity|Planner|OneNote|Visio|Meet App) \\|") | not)
 ' > /dev/null && echo "true" || echo "false")
 
 # Slack Huddles (🎤 emoji in title == active huddle)
@@ -81,12 +81,16 @@ fi
 if [ "$CURRENT_STATE" == "in" ]; then
   echo "🎥"
   if [ "$PREVIOUS_STATE" != "in" ]; then
-    shortcuts run $inMeetingShortcut
+    # Run shortcut; update state if successful
+    shortcuts run $inMeetingShortcut && \
+      echo "$CURRENT_STATE" > "$STATE_FILE"
   fi
 elif [ "$CURRENT_STATE" == "out" ]; then
   echo "📴"
   if [ "$PREVIOUS_STATE" != "out" ]; then
-    shortcuts run $outOfMeetingShortcut
+    # Run shortcut; update state if successful
+    shortcuts run $outOfMeetingShortcut && \
+      echo "$CURRENT_STATE" > "$STATE_FILE"
   fi
 fi
 
@@ -96,6 +100,3 @@ echo "zoom: $zoom_active"
 echo "facetime: $facetime_active"
 echo "teams: $teams_active"
 echo "slack: $slack_active"
-
-# Update state
-echo "$CURRENT_STATE" > "$STATE_FILE"
