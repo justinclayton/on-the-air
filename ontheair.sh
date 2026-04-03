@@ -61,9 +61,15 @@ slack_active=$(echo "$windows" | jq -e '
   select(.title | test("🎤"))
 ' > /dev/null && echo "true" || echo "false")
 
+# Loom recording (Loom Camera window only appears when recording)
+loom_active=$(echo "$windows" | jq -e '
+  .[] | select(.app == "Loom") |
+  select(.title == "Loom Camera")
+' > /dev/null && echo "true" || echo "false")
+
 
 # Final call state is "in" if any are active
-if [[ "$zoom_active" == "true" || "$facetime_active" == "true" || "$teams_active" == "true" || "$slack_active" == "true" ]]; then
+if [[ "$zoom_active" == "true" || "$facetime_active" == "true" || "$teams_active" == "true" || "$slack_active" == "true" || "$loom_active" == "true" ]]; then
   CURRENT_STATE="in"
 else
   CURRENT_STATE="out"
@@ -100,3 +106,4 @@ echo "zoom: $zoom_active"
 echo "facetime: $facetime_active"
 echo "teams: $teams_active"
 echo "slack: $slack_active"
+echo "loom: $loom_active"

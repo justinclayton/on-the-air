@@ -4,7 +4,7 @@ A script for macOS that detects when you're in a video call, and can trigger aut
 
 ## Overview
 
-This script monitors your active video calling applications (Zoom, FaceTime, Microsoft Teams, and Slack Huddles) and automatically triggers Apple Shortcuts when you enter or leave a meeting. The output format also just happens to work seamlessly with [SwiftBar](https://swiftbar.app/) for menu bar integration, but it's flexible enough to be used however you like.
+This script monitors your active video calling applications and automatically triggers Apple Shortcuts when you enter or leave a meeting. The output format also just happens to work seamlessly with [SwiftBar](https://swiftbar.app/) for menu bar integration, but it's flexible enough to be used however you like.
 
 ## Why I created this
 
@@ -12,9 +12,21 @@ My home office is in my basement. After too many instances of family members cal
 
 I remembered seeing those "On The Air" signs in old television studios that would light up during filming so no one would barge in during a show, and my own personal light bulb went off that I could use my existing smart home devices to have something similar. In my case, both the light at the top of the stairs and the LED strip behind my desk turn blue when I'm in a meeting, and return to their original state when the meeting ends.
 
+## Supported Applications
+
+Zoom, FaceTime, Microsoft Teams, Slack, Loom
+
 ## How does it work?
 
 The call detection is made possible through [yabai](https://github.com/koekeishiya/yabai), a command-line app that collects information about active macOS windows. I started with simple AppleScript, but learned that wouldn't work with full-screen Spaces. So far this method has proven to be surprisingly reliable.
+
+Here's how each application is detected:
+
+- **Zoom** - Detects Zoom windows with "Meeting" in the title
+- **FaceTime** - Detects active FaceTime calls
+- **Microsoft Teams** - Detects meeting windows (excludes sidebar tabs like Calendar, Chat, etc.)
+- **Slack** - Detects active Huddles (identified by 🎤 emoji in window title)
+- **Loom** - Detects active recordings (identified by the "Loom Camera" window)
 
 Special thanks to [koekeishiya](https://github.com/koekeishiya) for creating yabai and making this project possible! If you find this useful, consider [supporting their work on Patreon](https://www.patreon.com/koekeishiya)!
 
@@ -112,15 +124,6 @@ done
 1. Copy or symlink the script to your SwiftBar plugin folder (configurable in SwiftBar preferences)
 2. Rename it with a refresh interval, e.g., `ontheair.5s.sh` (refreshes every 5 seconds)
 3. The script will appear in your menu bar showing 🎥 when in a meeting or 📴 when not
-
-## Supported Applications
-
-Currently detects meetings in:
-
-- **Zoom** - Detects Zoom windows with "Meeting" in the title
-- **FaceTime** - Detects active FaceTime calls
-- **Microsoft Teams** - Detects meeting windows (excludes sidebar tabs like Calendar, Chat, etc.)
-- **Slack** - Detects active Huddles (identified by 🎤 emoji in window title)
 
 ## Customization
 
